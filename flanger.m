@@ -14,6 +14,7 @@ alpha = -0.707;
 beta = 0.707;
 gamma = 0.707;
 
+% QUESTO CALCOLO POTREBBE ESSERE FATTO UN CAMPIONE ALLA VOLTA DENTRO LE FUNZIONI ALLPASS, LINEAR
 td=1:length(x);
 D = D0 + D1*sin(2*pi*Ffl*Tc*td);
 
