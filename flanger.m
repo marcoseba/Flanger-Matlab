@@ -1,16 +1,15 @@
 %flanger prova
 
 clear all 
-close all
 
-[x,Fs] = audioread('esempio16kHz.wav');
+[x,Fs] = audioread('gtr-jazz.wav');
 Tc = 1/Fs;
 x(:,2) = []; %da stereo a mono
 x = x'; %converto in vettore riga
 
-D0 = 88; %5.5 ms
-D1 = 72; %4.5ms
-Ffl = 0.5; %Hz
+D0 = floor(0.0055/Tc);    %5.5 ms
+D1 = floor(0.0045/Tc);     %4.5ms
+Ffl = 0.5;   %Hz 0.5
 alpha = -0.707;
 beta = 0.707;
 gamma = 0.707;
@@ -26,5 +25,17 @@ for i = 1:length(D)
     a(i) = D(i) - M(i); %parte frazionaria di D(n)
 end
 
-[x2,x1] = LinearInerAlpha(x,M,a,alpha);
-y = beta*x1 + gamma*x2;
+% MODO LINEARE
+[x2,x1] = LinearInterAlpha(x,M,a,alpha);
+y_lin = beta*x1 + gamma*x2; 
+
+
+%MODO ALL-PASS
+%calcolo del vettore ritardi delta
+delta =zeros(1,length(x));
+for i = 1:length(x) 
+   delta(i) = (1-a(i)) / (1+a(i)); 
+end
+
+[x2,x1] = AllpassInterAlpha(x,M,delta,alpha);
+y_all = beta*x1 + gamma*x2; 
