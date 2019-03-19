@@ -2,7 +2,7 @@
 
 clear all 
 
-[x,Fs] = audioread('gtr-jazz.wav');
+[x,Fs] = audioread('Halen.wav');
 Tc = 1/Fs;
 x(:,2) = []; %da stereo a mono
 x = x'; %converto in vettore riga
@@ -10,33 +10,19 @@ x = x'; %converto in vettore riga
 D0 = floor(0.0055/Tc);    %5.5 ms
 D1 = floor(0.0045/Tc);     %4.5ms
 Ffl = 0.5;   %Hz 0.5
-alpha = -0.707;
+alpha = -0.2;
+%alpha = -0.707;  %variabile tra 1,-1 (-1 max effetto)
 beta = 0.707;
 gamma = 0.707;
 
-% QUESTO CALCOLO POTREBBE ESSERE FATTO UN CAMPIONE ALLA VOLTA DENTRO LE FUNZIONI ALLPASS, LINEAR
-td=1:length(x);
-D = D0 + D1*sin(2*pi*Ffl*Tc*td);
-
-%scompongo in parte intera e parte frazionaria
-M = zeros(1,length(D));
-a = zeros(1,length(D));
-for i = 1:length(D)
-    M(i) = floor(D(i)); %parte intera di D(n)
-    a(i) = D(i) - M(i); %parte frazionaria di D(n)
-end
-
 % MODO LINEARE
-[x2,x1] = LinearInterAlpha(x,M,a,alpha);
+[x2,x1] = LinearInterAlpha2(x,alpha,Tc,D0,D1,Ffl);
 y_lin = beta*x1 + gamma*x2; 
 
-
 %MODO ALL-PASS
-%calcolo del vettore ritardi delta
-delta =zeros(1,length(x));
-for i = 1:length(x) 
-   delta(i) = (1-a(i)) / (1+a(i)); 
-end
-
-[x2,x1] = AllpassInterAlpha(x,M,delta,alpha);
+[x2,x1] = AllpassInterAlpha2(x,alpha,Tc,D0,D1,Ffl);
 y_all = beta*x1 + gamma*x2; 
+
+
+%audiowrite('Halen_flanger.wav',y_lin,Fs);
+%audiowrite('Halen_flanger_all.wav',y_all,Fs);
